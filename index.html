@@ -1608,7 +1608,7 @@
         var st = laneState(sel.child);
         var owned = Object.keys(st.lane.items).length;
         var abHtml = ABILITIES.filter(function (a) { return (st.lane.ab[a.id] || 0) > 0; }).map(function (a) {
-          return '<span class="badge">' + a.emo + " " + a.name + " ×" + st.lane.ab[a.id] + "</span>";
+          return '<span class="badge">' + a.icon + " " + a.name + " ×" + st.lane.ab[a.id] + "</span>";
         }).join("");
         box.innerHTML = '<div class="card" style="margin-top:14px;">' +
           '<h3 style="margin:0 0 6px;">⚔️ ぼうけんレーン</h3>' +
