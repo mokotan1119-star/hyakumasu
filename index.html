@@ -260,6 +260,18 @@
       #lane-track{ display:flex; gap:3px; justify-content:center; align-items:flex-end; margin-top:4px; overflow:hidden; }
       .lane-tile{ width:34px; height:46px; border-radius:9px; background:var(--surface); border:2px solid var(--line); display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:19px; flex:none; }
       .lane-tile.hero{ border-color:var(--teal); background:var(--teal-soft); }
+      @keyframes laneBob{ 0%,100%{ transform:translateY(0); } 50%{ transform:translateY(-3px); } }
+      .lane-tile.hero .lane-hero-svg{ animation:laneBob 1s ease-in-out infinite; }
+      @keyframes laneStep{ 0%{ transform:scale(1.25); } 100%{ transform:scale(1); } }
+      .lane-tile.hero{ animation:laneStep .25s ease; }
+      @keyframes laneHit{ 0%,100%{ transform:translateX(0); } 25%{ transform:translateX(-3px) rotate(-4deg); } 75%{ transform:translateX(3px) rotate(4deg); } }
+      .lane-tile.hit{ animation:laneHit .3s ease; border-color:var(--coral); background:var(--coral-soft); }
+      @keyframes laneDie{ 0%{ transform:scale(1); opacity:1; } 100%{ transform:scale(1.5) rotate(10deg); opacity:.2; } }
+      .lane-tile.die{ animation:laneDie .35s ease forwards; }
+      @keyframes laneMsgPop{ 0%{ transform:scale(.85); } 60%{ transform:scale(1.06); } 100%{ transform:scale(1); } }
+      #lane-msg.pop{ animation:laneMsgPop .3s ease; }
+      @keyframes laneDropIn{ 0%{ transform:translateY(-8px) scale(.6); opacity:0; } 100%{ transform:translateY(0) scale(1); opacity:1; } }
+      #lane-drops{ animation:laneDropIn .3s ease; }
       .lane-tile .lhp{ font-size:9px; font-weight:800; color:var(--coral-dark); line-height:1; }
       .lane-tile.goal{ border-color:var(--yellow); }
       #lane-drops{ font-size:13px; font-weight:700; text-align:center; margin-top:4px; }
@@ -972,7 +984,7 @@
         var from = Math.max(0, LANE.pos - 2);
         for (var i = from; i < from + 11; i++) {
           var ev = LANE.events[i];
-          var cls = "lane-tile" + (i === LANE.pos ? " hero" : "") + ((ev && ev.type === "boss") ? " goal" : "");
+          var cls = "lane-tile" + (i === LANE.pos ? " hero" : "") + ((ev && ev.type === "boss") ? " goal" : "") + ((LANE.fx && LANE.fx.pos === i) ? " " + LANE.fx.cls : "");
           var inner;
           if (i === LANE.pos) inner = heroSVG(LANE.child);
           else if (ev) inner = "<span>" + ev.emo + "</span>" + ((ev.type === "enemy" || ev.type === "boss") ? '<span class="lhp">HP ' + ev.hp + "</span>" : "");
@@ -980,7 +992,7 @@
           html += '<div class="' + cls + '">' + inner + "</div>";
         }
         wrap.innerHTML = html;
-        $("lane-msg").textContent = LANE.msg;
+        var lm = $("lane-msg"); lm.textContent = LANE.msg; lm.classList.remove("pop"); void lm.offsetWidth; lm.classList.add("pop");
         $("lane-drops").textContent = LANE.drops.length ? ("🎁 ゲット： " + LANE.drops.map(function (d) { return d.name; }).join("、")) : "";
       }
       function laneOnCorrect() {
@@ -992,6 +1004,7 @@
         if (ev && (ev.type === "enemy" || ev.type === "boss")) {
           var dmg = 1 + (LANE.ab.atk || 0);
           ev.hp -= dmg;
+          LANE.fx = { pos: target, cls: ev.hp <= 0 ? "die" : "hit" };
           if (ev.hp <= 0) {
             var isBoss = ev.type === "boss";
             delete LANE.events[target]; LANE.pos = target;
