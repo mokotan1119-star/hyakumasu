@@ -345,6 +345,7 @@
         <h2 class="sec">きなこの ぼうけん</h2>
         <div class="card">
           <div id="rpg-home"></div>
+          <div id="home-lane"></div>
           <div class="btn-row" style="margin-top:16px;">
             <button type="button" class="ghost-btn" id="goto-zukan">アイテムずかんを 見る</button>
           </div>
@@ -1589,8 +1590,23 @@
       }
 
       /* ---------- ホームの要約 ---------- */
+      function renderLaneHome() {
+        var box = $("home-lane"); if (!box) return;
+        var st = laneState(sel.child);
+        var owned = Object.keys(st.lane.items).length;
+        var abHtml = LANE_ABILITIES.filter(function (a) { return (st.lane.ab[a.id] || 0) > 0; }).map(function (a) {
+          return '<span class="badge">' + a.emo + " " + a.name + " ×" + st.lane.ab[a.id] + "</span>";
+        }).join("");
+        box.innerHTML = '<div class="card" style="margin-top:14px;">' +
+          '<h3 style="margin:0 0 6px;">⚔️ ぼうけんレーン</h3>' +
+          '<div style="display:flex; gap:12px; align-items:center;">' +
+          '<div style="width:64px; height:64px; flex:none;">' + heroSVG(sel.child) + "</div>" +
+          '<p style="margin:0; font-size:14px; line-height:1.6;">プレイ中に せいかいすると すすむよ。てきや ボス（ウルシュライム、アトラスウォーム…）を たおすと たからが もらえる！<br>たから： <b>' + owned + " / " + ITEMS2.length + "</b>　ボス撃破： <b>" + st.lane.bosses + "</b> 回</p></div>" +
+          (abHtml ? '<div class="badge-row">' + abHtml + "</div>" : "") +
+          "</div>";
+      }
       function renderHomeSummary() {
-        renderRPGHome();
+        renderRPGHome(); renderLaneHome();
         var recs = recordsOf(sel.child);
         var name = CHILDREN[sel.child].name;
         var box = $("home-summary");
